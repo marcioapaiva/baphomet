@@ -16,24 +16,47 @@ DIR_W = 0
 DIR_S = 1
 DIR_E = 2
 DIR_N = 3
-JOINT_HEIGHT = 5
-JOINT_WIDTH  = 10
+JOINT_HEIGHT = 3
+JOINT_WIDTH  = 6
+
+def frange(x, y, jump):
+  while x < y:
+    yield x
+    x += jump
 
 
 class SnakeNode(object):
     def __init__(self,x,y,c,dir,prev=None):
         self.x, self.y, self.color, self.dir = x, y, c, dir
         self.prev = prev
+        self.last_x, self.last_y, self.last_dir = x,y,dir
+        self.dir = dir
+
+    def _save_state(self):
+        self.last_x, self.last_y,self.dir = self.x, self.y, self.dir
+
     def add_pos(self, x,y):
+        self._save_state()
         self.x += x
         self.y += y
     def change_dir(self,dir):
-        self.dir = dir
+        self.last_dir = self.dir
+
+    def follow_prev(self):
+        if not self.prev:
+            return
+        self._save_state()
+        self.x, self.y, self.dir = self.prev.x, self.prev.y, self.prev.dir
+
 
     def frame(self):
         frame = []
-        for x in xrange(self.x - JOINT_WIDTH/2,self.x + JOINT_WIDTH/2):
-            for y in xrange(self.y - JOINT_HEIGHT/2, self.y + JOINT_HEIGHT/2):
+        jw, jh = JOINT_WIDTH, JOINT_HEIGHT
+        if self.dir == DIR_N or self.dir == DIR_S:
+            jw, jh = jh, jw
+
+        for x in frange(self.x - jw/2,self.x + jw/2,0.5):
+            for y in frange(self.y - jh/2, self.y + jh/2,0.5):
                 frame.append((x,y,self.color))
         return frame
 
