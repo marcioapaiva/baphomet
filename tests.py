@@ -1,4 +1,4 @@
 __author__ = 'ericmuxagata'
-from drawille.drawille import getTerminalSizeInPixels
+from drawille.drawille import get_terminal_size_in_pixels
 
-print getTerminalSizeInPixels()
+print get_terminal_size_in_pixels()

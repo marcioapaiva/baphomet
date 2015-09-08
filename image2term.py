@@ -9,7 +9,7 @@ except:
     from sys import stderr
     stderr.write('[E] PIL not installed\n')
     exit(1)
-from drawille.drawille import Canvas, getTerminalSizeInPixels, COLOR_WHITE
+from drawille.drawille import Canvas, get_terminal_size_in_pixels, COLOR_WHITE
 from StringIO import StringIO
 import urllib2
 
@@ -31,7 +31,7 @@ def image2term(image, threshold=128, ratio=None, invert=False):
             h = int(h * ratio)
             i = i.resize((w, h), Image.ANTIALIAS)
         else:
-            tw,th = getTerminalSizeInPixels()
+            tw,th = get_terminal_size_in_pixels()
             if tw < w:
                 ratio = tw / float(w)
                 w = tw

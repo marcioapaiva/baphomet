@@ -1,23 +1,21 @@
+from drawille.drawille import get_terminal_size_in_pixels
 
-from __future__ import print_function
-from drawille.drawille import Canvas, Palette, animate, COLOR_CYAN, COLOR_GREEN, COLOR_RED, COLOR_YELLOW, getTerminalSizeInPixels
-from math import sin, radians
-from random import randint
-from image2term import image2term
 
-c = Canvas()
-p = Palette()
-t = 0
+__author__ = 'ericmuxagata'
 
-r,g,b = [randint(0,1000) for i in xrange(3)]
-
+BASE_SIZE = 5
 
 DIR_W = 0
 DIR_S = 1
 DIR_E = 2
 DIR_N = 3
-JOINT_HEIGHT = 3
-JOINT_WIDTH  = 6
+JOINT_HEIGHT = 3.0
+JOINT_WIDTH  = 6.0
+
+EDGE_X = 12.0
+EDGE_Y = 7.0
+
+tw,th = get_terminal_size_in_pixels()
 
 def frange(x, y, jump):
   while x < y:
@@ -26,117 +24,61 @@ def frange(x, y, jump):
 
 
 class SnakeNode(object):
-    def __init__(self,x,y,c,dir,prev=None):
+    def __init__(self,x,y,c,dir,speed=JOINT_WIDTH, next=None,prev=None):
         self.x, self.y, self.color, self.dir = x, y, c, dir
         self.prev = prev
-        self.last_x, self.last_y, self.last_dir = x,y,dir
+        self.next = next
         self.dir = dir
-
-    def _save_state(self):
-        self.last_x, self.last_y,self.dir = self.x, self.y, self.dir
+        self.speed = speed
 
     def add_pos(self, x,y):
-        self._save_state()
         self.x += x
         self.y += y
-    def change_dir(self,dir):
-        self.last_dir = self.dir
+        self.x = max(EDGE_X + JOINT_WIDTH/2,min(self.x, tw - EDGE_X - JOINT_WIDTH/2))
+        self.y = max(EDGE_Y + JOINT_WIDTH/2,min(self.y, th - EDGE_Y - JOINT_WIDTH))
 
-    def follow_prev(self):
-        if not self.prev:
+    def follow_next(self):
+        if not self.next:
             return
-        self._save_state()
-        self.x, self.y, self.dir = self.prev.x, self.prev.y, self.prev.dir
-
+        self.x, self.y, self.dir = self.next.x, self.next.y, self.next.dir
+        self.next.follow_next()
 
     def frame(self):
         frame = []
-        jw, jh = JOINT_WIDTH, JOINT_HEIGHT
+        jw, jh = self.speed, JOINT_HEIGHT
         if self.dir == DIR_N or self.dir == DIR_S:
             jw, jh = jh, jw
 
-        for x in frange(self.x - jw/2,self.x + jw/2,0.5):
-            for y in frange(self.y - jh/2, self.y + jh/2,0.5):
+        for x in frange(self.x - jw/2,self.x + jw/2,0.25):
+            for y in frange(self.y - jh/2, self.y + jh/2,0.25):
                 frame.append((x,y,self.color))
         return frame
-
-
-BASE_SIZE = 5
-SPEED = 10
 
 
 class Snake(object):
     def __init__(self,x,y,c,dir):
         self.color = c
-        self.head = SnakeNode(x,y,c,dir)
+        self.speed = 2*JOINT_WIDTH
+        self.nodes = [SnakeNode(x-i*self.speed,y,c,dir,self.speed) for i in xrange(BASE_SIZE)]
+        self.head = self.nodes[0]
+        self.tail = self.nodes[-1]
+        for i in xrange(len(self.nodes)):
+            self.nodes[i].prev = self.nodes[i+1] if i+1 < len(self.nodes) else None
+            self.nodes[i].next = self.nodes[i-1] if i-1 >= 0 else None
     def __update__(self):
+        self.tail.follow_next()
         if self.head.dir == DIR_S:
-            self.head.add_pos(0,SPEED)
+            self.head.add_pos(0,self.speed)
         elif self.head.dir == DIR_N:
-            self.head.add_pos(0,-SPEED)
+            self.head.add_pos(0,-self.speed)
         elif self.head.dir == DIR_W:
-            self.head.add_pos(-SPEED,0)
+            self.head.add_pos(-self.speed,0)
         else:
-            self.head.add_pos(SPEED,0)
+            self.head.add_pos(self.speed,0)
 
     def frame(self):
-        return self.head.frame()
-
-
-def set_pos(frame,xd,yd):
-    return [(x+xd,y+yd,c) for (x,y,c) in frame]
-
-
-def load_arena():
-    arena = []
-    baphomet_head = image2term('img/baphomet_head.gif', ratio=0.48, invert=True)
-    tw,th = getTerminalSizeInPixels()
-
-    arena.extend(set_pos(baphomet_head,tw/2 - 105,th/2 - 105))
-    arena.extend(image2term('img/arena.png',ratio=0.999))
-
-    return arena
-
-
-
-def __update__():
-    t = 0
-    snake1 = Snake(100,150,COLOR_YELLOW,DIR_E)
-    snake2 = Snake(200,150,COLOR_RED,DIR_E)
-    snake3 = Snake(100,200,COLOR_GREEN,DIR_E)
-    snake4 = Snake(200,200,COLOR_CYAN,DIR_E)
-    snakes = [snake1, snake2, snake3, snake4]
-
-
-    while True:
         frame = []
-        frame.extend(load_arena())
-        for snake in snakes:
-            frame.extend(snake.frame())
-
-        # frame = [(x+100,y+20,c) for (x,y,c) in frame]
-
-        # frame = []
-        # for x in range(0,600,5):
-        #     frame.extend([(x/5,50+50*sin(radians(x-t))+i, COLOR_RED) for i in range(0,8)])
-        # for x in range(600,1200,5):
-        #     frame.extend([(x/5,50+50*sin(radians(x-t))+i, COLOR_CYAN) for i in range(0,8)])
-        # for x in range(1200,1800,5):
-        #     frame.extend([(x/5,50+50*sin(radians(x-t))+i, COLOR_BLUE) for i in range(0,8)])
-
-        #TODO: Aqui faz a arena do snake.
-
-        yield frame
-        t += 1
-        for snake in snakes:
-            snake.__update__()
-            if t % 10 == 0:
-                snake.head.dir += 1
-                if snake.head.dir == 4:
-                    snake.head.dir = 0
-
-
-if __name__ == '__main__':
-    p.add_color(COLOR_CYAN)
-    animate(c,p, __update__, 1./60)
+        for node in self.nodes:
+            frame.extend(node.frame())
+        return frame
 
