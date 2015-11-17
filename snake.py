@@ -70,7 +70,7 @@ class Snake(object):
             self.kill_reset()
             return
         if arena.find_and_eat_seed(self.head.x + dx, self.head.y + dy):
-            self.points += 1
+            self.points += 10
             self.max_points = max(self.max_points, self.points)
             self.expand()
 

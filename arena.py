@@ -25,7 +25,7 @@ class Arena(object):
         self.frame.extend(set_pos(bapho_head[2],self.x + self.w/2 - bapho_head[0]/2,self.y + self.h/2 - bapho_head[1]/2))
 
         bapho_title = image2term('img/baphomet_title.jpg', height=85,invert=True)
-        self.frame.extend(set_pos(bapho_title[2],self.x + self.w/2 - bapho_title[0]/2,self.y - 25 - bapho_title[1]/2))
+        self.frame.extend(set_pos(bapho_title[2],self.x + self.w/2 - bapho_title[0]/2,self.y - 20 - bapho_title[1]/2))
 
         # Generate seeds.
         random.seed(datetime.now())
