@@ -49,24 +49,25 @@ class SnakeNode(object):
 
 
 class Snake(object):
-    def __init__(self,x,y,c,dir):
+    def __init__(self, x, y, c, dir):
         self.color = c
-        self.nodes = [SnakeNode(x-i*CH_WIDTH,y,c,dir) for i in xrange(BASE_SIZE)]
+        self.nodes = [SnakeNode(x-i*CH_WIDTH, y, c, dir) for i in xrange(BASE_SIZE)]
         self.head = self.nodes[0]
         self.tail = self.nodes[-1]
         for i in xrange(len(self.nodes)):
             self.nodes[i].prev = self.nodes[i+1] if i+1 < len(self.nodes) else None
             self.nodes[i].next = self.nodes[i-1] if i-1 >= 0 else None
+
     def __update__(self):
         self.tail.follow_next()
         if self.head.dir == DIR_S:
-            self.head.add_pos(0,1)
+            self.head.add_pos(0, 1)
         elif self.head.dir == DIR_N:
-            self.head.add_pos(0,-1)
+            self.head.add_pos(0, -1)
         elif self.head.dir == DIR_W:
-            self.head.add_pos(-1,0)
+            self.head.add_pos(-1, 0)
         else:
-            self.head.add_pos(1,0)
+            self.head.add_pos(1, 0)
 
     def frame(self):
         frame = []

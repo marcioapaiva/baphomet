@@ -24,6 +24,8 @@ from time import sleep
 import curses
 
 
+global stdscr
+
 IS_PY3 = version_info[0] == 3
 
 if IS_PY3:
@@ -255,9 +257,10 @@ class Palette(object):
         self.pair_index = len(DEFAULT_COLORS)
 
     def start_colors(self):
-        if not curses.can_change_color():
+        if not curses.has_colors():
             return
 
+        print "starting color"
         curses.start_color()
         for color_index in self.colors.keys():
             pair_index = self.colors[color_index]
@@ -269,8 +272,6 @@ class Palette(object):
             self.colors[color_index] = self.pair_index
             self.pair_index += 1
 
-
-global stdscr
 
 def handle_input():
     global stdscr
@@ -294,19 +295,18 @@ def animate(canvas, palette, fn, delay=1./24, *args, **kwargs):
     def animation(stdscr):
         for frame in fn(*args, **kwargs):
             stdscr.erase()
-            for x,y,c in frame:
-                canvas.set(x,y)
-                canvas.set_color(x,y,c)
+            for x, y, c in frame:
+                canvas.set(x, y)
+                canvas.set_color(x, y, c)
 
-                col,row = get_pos(x,y)
+                col, row = get_pos(x, y)
                 color = canvas.colors[row][col]
 
                 color_pair = curses.color_pair(0)
                 if color in palette.colors:
                     color_pair = curses.color_pair(palette.colors[color])
 
-
-                stdscr.addstr(row,col, unichr(braille_char_offset+canvas.chars[row][col]).encode('utf-8'), color_pair)
+                stdscr.addstr(row, col, unichr(braille_char_offset+canvas.chars[row][col]).encode('utf-8'), color_pair)
 
             stdscr.refresh()
             if delay:
