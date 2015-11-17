@@ -9,6 +9,8 @@ from arena import *
 import socket
 import sys
 
+# Global state
+# 'Cause I don't know python and it's too fucking late
 c = Canvas()
 p = Palette()
 t = 0
@@ -16,6 +18,26 @@ is_server = False
 server_ip = None
 server_port = None
 m_socket = None
+dir_dict = {
+    "DIR_N": DIR_N,
+    "DIR_S": DIR_S,
+    "DIR_W": DIR_W,
+    "DIR_E": DIR_E,
+    "None": None
+}
+key_dir_dict = {
+    KEY_UP: DIR_N,
+    KEY_DOWN: DIR_S,
+    KEY_LEFT: DIR_W,
+    KEY_RIGHT: DIR_E
+}
+dir_dict_inv = {v: k for k, v in dir_dict.items()}
+sockets_dict = {
+}
+snakes = [Snake(100, 150, COLOR_YELLOW, DIR_E),
+          Snake(200, 150, COLOR_RED, DIR_E),
+          Snake(100, 200, COLOR_GREEN, DIR_E),
+          Snake(200, 200, COLOR_CYAN, DIR_E)]
 
 
 def set_pos(frame, xd, yd):
@@ -38,31 +60,19 @@ def load_arena():
 
 def __update__():
     t = 0
-    snake1 = Snake(100, 150, COLOR_YELLOW, DIR_E)
-    snake2 = Snake(200, 150, COLOR_RED, DIR_E)
-    snake3 = Snake(100, 200, COLOR_GREEN, DIR_E)
-    snake4 = Snake(200, 200, COLOR_CYAN, DIR_E)
-    snakes = [snake1, snake2, snake3, snake4]
 
     while True:
         key = handle_input()
-        direction = None
-        if key == KEY_UP:
-            direction = DIR_N
-        elif key == KEY_DOWN:
-            direction = DIR_S
-        elif key == KEY_LEFT:
-            direction = DIR_W
-        elif key == KEY_RIGHT:
-            direction = DIR_E
+        this_direction = key_dir_dict.get(key, None)
 
-        snake1.move(direction)
+        snakes[0].move(this_direction)
 
         if is_server:
-            dir2 = receive_dir()
-            snake2.move(dir2)
+            for player in sockets_dict.keys():
+                direction = receive_dir(sockets_dict[player])
+                snakes[player].move(direction)
         else:
-            send_dir(direction)
+            send_dir(this_direction)
 
         frame = []
         frame.extend(arena.frame)
@@ -73,41 +83,21 @@ def __update__():
         t += 1
         for snake in snakes:
             snake.__update__()
-            if t % 10 == 0 and snake is not snake1:
-                snake.head.dir += 1
-                if snake.head.dir == 4:
-                    snake.head.dir = 0
-
-
-conn = None
-addr = None
 
 
 def init_server_socket():
-    global m_socket, conn, addr
+    global m_socket
 
     m_socket = socket.socket()
-    host = ''
-    port = 8080
+    host = '127.0.0.1'
+    port = 8084
     m_socket.bind((host, port))
 
-    m_socket.listen(5)
-    print("Waiting for connection...")
-    conn, addr = m_socket.accept()
+    m_socket.listen(4)
 
 
-dir_dict = {
-    "DIR_N": DIR_N,
-    "DIR_S": DIR_S,
-    "DIR_W": DIR_W,
-    "DIR_E": DIR_E,
-    "None": None
-}
-dir_dict_inv = {v: k for k, v in dir_dict.items()}
-
-
-def receive_dir():
-    data = conn.recv(1024)
+def receive_dir(sckt):
+    data = sckt.recv(1024)
     string = data.rstrip("\n")
 
     print("Received " + string)
@@ -125,21 +115,38 @@ def init_client_socket():
 
 
 def main(argv):
-    global is_server, server_ip, server_port
-
-    print(argv)
+    global is_server, server_ip, server_port, snakes
 
     if len(argv) == 0:
         is_server = True
         init_server_socket()
+        p_number = 1
+        while p_number <= 3 and prompt_wait_for_player():
+            wait_for_player(p_number)
+            p_number += 1
+        snakes = snakes[0:p_number]
     else:
         is_server = False
-        server_ip = argv[1]
-        server_port = int(argv[2])
+        server_ip = argv[0]
+        server_port = int(argv[1])
         init_client_socket()
 
     p.add_color(COLOR_CYAN)
     animate(c, p, __update__, 1./15)
 
+
+def wait_for_player(number):
+    print("Waiting for player " + str(number+1))
+    conn, addr = m_socket.accept()
+    print(addr[0] + " connected as player " + str(number+1))
+    sockets_dict[number] = conn
+
+
+def prompt_wait_for_player():
+    str_wait = raw_input("Wait for another player? [y/n] ")
+    if str_wait.upper() == "Y":
+        return True
+    return False
+
 if __name__ == '__main__':
-    main(sys.argv[2:])
+    main(sys.argv[1:])
