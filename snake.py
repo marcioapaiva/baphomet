@@ -115,11 +115,11 @@ class Snake(object):
     def move(self, direction):
         if direction is not None:
             if direction == DIR_N:
-                self.head.dir = direction if direction != DIR_S else DIR_N
+                self.head.dir = direction if self.head.dir != DIR_S else DIR_S
             elif direction == DIR_S:
-                self.head.dir = direction if direction != DIR_N else DIR_S
+                self.head.dir = direction if self.head.dir != DIR_N else DIR_N
             elif direction == DIR_W:
-                self.head.dir = direction if direction != DIR_E else DIR_W
+                self.head.dir = direction if self.head.dir != DIR_E else DIR_E
             else:
-                self.head.dir = direction if direction != DIR_W else DIR_E
+                self.head.dir = direction if self.head.dir != DIR_W else DIR_W
 
