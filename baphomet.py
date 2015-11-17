@@ -78,7 +78,7 @@ def __update__():
         else:
             send_dir(this_direction)
             dirs = receive_dirs(m_socket)
-            for player in dirs:
+            for player in dirs.keys():
                 snakes[player].move(dirs[player])
 
         frame = []
