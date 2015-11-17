@@ -108,7 +108,7 @@ def receive_dir(sckt):
 
 
 def send_dir(direction):
-    m_socket.sendall(dir_dict_inv[direction])
+    m_socket.sendall(dir_dict_inv[direction] + "\n")
 
 
 def init_client_socket():
