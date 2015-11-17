@@ -39,6 +39,9 @@ snakes = [Snake(100, 150, COLOR_YELLOW, DIR_E),
           Snake(100, 200, COLOR_GREEN, DIR_E),
           Snake(200, 200, COLOR_CYAN, DIR_E)]
 
+# Client state
+client_number = None
+
 
 def set_pos(frame, xd, yd):
     return [(x+xd, y+yd, c) for (x, y, c) in frame]
@@ -89,8 +92,8 @@ def init_server_socket():
     global m_socket
 
     m_socket = socket.socket()
-    host = '127.0.0.1'
-    port = 8084
+    host = ''
+    port = 8086
     m_socket.bind((host, port))
 
     m_socket.listen(4)
@@ -113,23 +116,34 @@ def init_client_socket():
     m_socket = socket.socket()
     m_socket.connect((server_ip, server_port))
 
+    # Wait for start
+
 
 def main(argv):
     global is_server, server_ip, server_port, snakes
 
     if len(argv) == 0:
         is_server = True
+    else:
+        is_server = False
+
+    if is_server:
         init_server_socket()
         p_number = 1
         while p_number <= 3 and prompt_wait_for_player():
             wait_for_player(p_number)
             p_number += 1
         snakes = snakes[0:p_number]
+        send_start_game()
     else:
-        is_server = False
         server_ip = argv[0]
         server_port = int(argv[1])
         init_client_socket()
+        print("Waiting for game start...")
+        rcvd = getline(m_socket)
+        print (rcvd)
+
+
 
     p.add_color(COLOR_CYAN)
     animate(c, p, __update__, 1./15)
@@ -147,6 +161,28 @@ def prompt_wait_for_player():
     if str_wait.upper() == "Y":
         return True
     return False
+
+
+def getline(sckt):
+    sckt_buffer = sckt.recv(4096)
+    buffering = True
+    while buffering:
+        if "\n" in sckt_buffer:
+            (line, sckt_buffer) = sckt_buffer.split("\n", 1)
+            yield line + "\n"
+        else:
+            more = sckt.recv(4096)
+            if not more:
+                buffering = False
+            else:
+                sckt_buffer += more
+    if sckt_buffer:
+        yield sckt_buffer
+
+
+def send_start_game():
+    for player in sockets_dict.keys():
+        sockets_dict[player].send(str(player) + "\n")
 
 if __name__ == '__main__':
     main(sys.argv[1:])
