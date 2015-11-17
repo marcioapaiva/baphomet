@@ -134,10 +134,6 @@ def send_dirs(sckt):
     for player in range(len(snakes)):
         dirs[player] = snakes[player].head.dir
 
-    time.sleep(4)
-    arq = open("/home/moco/bizu", "w")
-    arq.write(json.dumps(dirs) + "\n")
-    arq.close()
     sckt.send(json.dumps(dirs) + "\n")
 
 
