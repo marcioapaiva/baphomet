@@ -165,13 +165,13 @@ def main(argv):
     else:
         is_server = False
 
+    snakes = snakes[0:p_number]
     if is_server:
         init_server_socket()
         p_number = 1
         while p_number <= 3 and prompt_wait_for_player():
             wait_for_player(p_number)
             p_number += 1
-        snakes = snakes[0:p_number]
         send_start_game()
     else:
         server_ip = argv[0]
