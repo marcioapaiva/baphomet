@@ -1,5 +1,5 @@
-
 from __future__ import print_function
+import time
 from drawille.graphics_utils import get_terminal_size_in_pixels, COLOR_CYAN, COLOR_GREEN, COLOR_RED, COLOR_YELLOW
 from drawille.graphics_utils import KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT
 from drawille.drawille import Canvas, Palette, animate, handle_input
@@ -141,7 +141,8 @@ def main(argv):
         init_client_socket()
         print("Waiting for game start...")
         rcvd = getline(m_socket)
-        print (rcvd)
+        print ("rcvd = " + rcvd)
+        time.sleep(3)
 
 
 
