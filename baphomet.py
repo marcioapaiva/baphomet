@@ -93,7 +93,7 @@ def init_server_socket():
 
     m_socket = socket.socket()
     host = ''
-    port = 8086
+    port = 8087
     m_socket.bind((host, port))
 
     m_socket.listen(4)
@@ -140,11 +140,9 @@ def main(argv):
         server_port = int(argv[1])
         init_client_socket()
         print("Waiting for game start...")
-        rcvd = getline(m_socket)
-        print ("rcvd = " + rcvd)
+        rcvd = get_line(m_socket)
+        print ("rcvd = " + rcvd.next())
         time.sleep(3)
-
-
 
     p.add_color(COLOR_CYAN)
     animate(c, p, __update__, 1./15)
@@ -164,7 +162,7 @@ def prompt_wait_for_player():
     return False
 
 
-def getline(sckt):
+def get_line(sckt):
     sckt_buffer = sckt.recv(4096)
     buffering = True
     while buffering:
