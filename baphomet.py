@@ -11,6 +11,8 @@ import json
 import time
 # Global state
 # 'Cause I don't know python and it's too fucking late
+total = 0
+my_number = 0
 c = Canvas()
 p = Palette()
 t = 0
@@ -158,7 +160,7 @@ def init_client_socket():
 
 
 def main(argv):
-    global is_server, server_ip, server_port, snakes, total
+    global is_server, server_ip, server_port, snakes, total, my_number
 
     if len(argv) == 0:
         is_server = True
