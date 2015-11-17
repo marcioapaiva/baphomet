@@ -1,8 +1,8 @@
 
 from __future__ import print_function
-from drawille.drawille import Canvas, Palette, animate, COLOR_CYAN, COLOR_GREEN, COLOR_RED, COLOR_YELLOW
-from drawille.drawille import get_terminal_size_in_pixels, handle_input
-from drawille.drawille import KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT
+from drawille.graphics_utils import get_terminal_size_in_pixels, COLOR_CYAN, COLOR_GREEN, COLOR_RED, COLOR_YELLOW
+from drawille.graphics_utils import KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT
+from drawille.drawille import Canvas, Palette, animate, handle_input
 from image2term import image2term
 from snake import DIR_N,DIR_S,DIR_E,DIR_W,Snake
 
@@ -17,11 +17,12 @@ def set_pos(frame,xd,yd):
 
 def load_arena():
     arena = []
-    baphomet_head = image2term('img/baphomet_head.gif', ratio=0.48, invert=True)
+    baphomet_head = image2term('img/baphomet_head.gif', ratio=0.5, invert=True)
+
     tw,th = get_terminal_size_in_pixels()
 
     arena.extend(set_pos(baphomet_head,tw/2 - 105,th/2 - 105))
-    arena.extend(image2term('img/arena.png',ratio=0.999))
+    arena.extend(image2term('img/arena.png',ratio=1.0))
 
     return arena
 
@@ -31,7 +32,7 @@ def __update__():
     snake2 = Snake(200,150,COLOR_RED,DIR_E)
     snake3 = Snake(100,200,COLOR_GREEN,DIR_E)
     snake4 = Snake(200,200,COLOR_CYAN,DIR_E)
-    snakes = [snake1, snake2, snake3, snake4]
+    snakes = [snake1,snake2,snake3,snake4]
 
 
     while True:
@@ -44,7 +45,6 @@ def __update__():
             snake1.head.dir = DIR_W
         elif key == KEY_RIGHT:
             snake1.head.dir = DIR_E
-
 
         frame = []
         frame.extend(load_arena())
@@ -63,5 +63,6 @@ def __update__():
 
 if __name__ == '__main__':
     p.add_color(COLOR_CYAN)
-    animate(c,p, __update__, 1./60)
+    animate(c,p, __update__, 1./30)
+
 

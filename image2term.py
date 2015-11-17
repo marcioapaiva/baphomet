@@ -1,7 +1,7 @@
 __author__ = 'ericmuxagata'
 
 # example:
-# $  PYTHONPATH=`pwd` python examples/image2term.py http://fc00.deviantart.net/fs71/f/2011/310/5/a/giant_nyan_cat_by_daieny-d4fc8u1.png -t 100 -r 0.01
+# $  PYTHONPATH=`pwd` python baphomet/image2term_cli.py http://fc00.deviantart.net/fs71/f/2011/310/5/a/giant_nyan_cat_by_daieny-d4fc8u1.png -t 100 -r 0.01
 
 try:
     from PIL import Image
@@ -9,7 +9,8 @@ except:
     from sys import stderr
     stderr.write('[E] PIL not installed\n')
     exit(1)
-from drawille.drawille import Canvas, get_terminal_size_in_pixels, COLOR_WHITE
+from drawille.drawille import Canvas
+from drawille.graphics_utils import get_terminal_size_in_pixels, COLOR_WHITE
 from StringIO import StringIO
 import urllib2
 

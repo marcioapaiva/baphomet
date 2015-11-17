@@ -1,5 +1,4 @@
-from drawille.drawille import get_terminal_size_in_pixels
-
+from drawille.graphics_utils import get_terminal_size_in_pixels, normalize, get_pos
 
 __author__ = 'ericmuxagata'
 
@@ -9,8 +8,8 @@ DIR_W = 0
 DIR_S = 1
 DIR_E = 2
 DIR_N = 3
-JOINT_HEIGHT = 3.0
-JOINT_WIDTH  = 6.0
+CH_HEIGHT = 4.0
+CH_WIDTH  = 2.0
 
 EDGE_X = 12.0
 EDGE_Y = 7.0
@@ -24,18 +23,16 @@ def frange(x, y, jump):
 
 
 class SnakeNode(object):
-    def __init__(self,x,y,c,dir,speed=JOINT_WIDTH, next=None,prev=None):
-        self.x, self.y, self.color, self.dir = x, y, c, dir
+    def __init__(self,x,y,c,dir, next=None,prev=None):
+        self.x, self.y = get_pos(x,y)
+        self.color, self.dir = c, dir
         self.prev = prev
         self.next = next
         self.dir = dir
-        self.speed = speed
 
-    def add_pos(self, x,y):
+    def add_pos(self,x,y):
         self.x += x
         self.y += y
-        self.x = max(EDGE_X + JOINT_WIDTH/2,min(self.x, tw - EDGE_X - JOINT_WIDTH/2))
-        self.y = max(EDGE_Y + JOINT_WIDTH/2,min(self.y, th - EDGE_Y - JOINT_WIDTH))
 
     def follow_next(self):
         if not self.next:
@@ -45,21 +42,16 @@ class SnakeNode(object):
 
     def frame(self):
         frame = []
-        jw, jh = self.speed, JOINT_HEIGHT
-        if self.dir == DIR_N or self.dir == DIR_S:
-            jw, jh = jh, jw
-
-        for x in frange(self.x - jw/2,self.x + jw/2,0.25):
-            for y in frange(self.y - jh/2, self.y + jh/2,0.25):
-                frame.append((x,y,self.color))
+        for x in frange(self.x*CH_WIDTH, (self.x+1)*CH_WIDTH, 1.0):
+            for y in frange(self.y*CH_HEIGHT, (self.y+1)*CH_HEIGHT, 1.0):
+                frame.append((x, y, self.color))
         return frame
 
 
 class Snake(object):
     def __init__(self,x,y,c,dir):
         self.color = c
-        self.speed = 2*JOINT_WIDTH
-        self.nodes = [SnakeNode(x-i*self.speed,y,c,dir,self.speed) for i in xrange(BASE_SIZE)]
+        self.nodes = [SnakeNode(x-i*CH_WIDTH,y,c,dir) for i in xrange(BASE_SIZE)]
         self.head = self.nodes[0]
         self.tail = self.nodes[-1]
         for i in xrange(len(self.nodes)):
@@ -68,13 +60,13 @@ class Snake(object):
     def __update__(self):
         self.tail.follow_next()
         if self.head.dir == DIR_S:
-            self.head.add_pos(0,self.speed)
+            self.head.add_pos(0,1)
         elif self.head.dir == DIR_N:
-            self.head.add_pos(0,-self.speed)
+            self.head.add_pos(0,-1)
         elif self.head.dir == DIR_W:
-            self.head.add_pos(-self.speed,0)
+            self.head.add_pos(-1,0)
         else:
-            self.head.add_pos(self.speed,0)
+            self.head.add_pos(1,0)
 
     def frame(self):
         frame = []
