@@ -120,7 +120,7 @@ class Canvas(object):
             self.set(x, y)
 
 
-    def set_text(self, x, y, text):
+    def set_text(self, x, y, text, color):
         """Set text to the given coords.
 
         :param x: x coordinate of the text start position
@@ -130,6 +130,7 @@ class Canvas(object):
 
         for i,c in enumerate(text):
             self.chars[row][col+i] = c
+            self.colors[row][col+i] = color
 
     def set_color(self,x,y,color):
         """Set color to the given coords.
@@ -295,18 +296,31 @@ def animate(canvas, palette, fn, delay=1./24, *args, **kwargs):
     def animation(stdscr):
         for frame in fn(*args, **kwargs):
             stdscr.erase()
-            for x, y, c in frame:
-                canvas.set(x, y)
-                canvas.set_color(x, y, c)
+            for pxl in frame:
+                if len(pxl) == 4:
+                    x,y,c,s = pxl
+                    canvas.set_text(x,y,s,c)
 
-                col, row = get_pos(x, y)
-                color = canvas.colors[row][col]
+                    col, row = get_pos(x,y)
+                    color = c
+                    color_pair = curses.color_pair(0)
+                    if color in palette.colors:
+                        color_pair = curses.color_pair(palette.colors[color])
 
-                color_pair = curses.color_pair(0)
-                if color in palette.colors:
-                    color_pair = curses.color_pair(palette.colors[color])
+                    stdscr.addnstr(row,col,s,len(s),color_pair)
+                else:
+                    x,y,c = pxl
+                    canvas.set(x, y)
+                    canvas.set_color(x, y, c)
 
-                stdscr.addstr(row, col, unichr(braille_char_offset+canvas.chars[row][col]).encode('utf-8'), color_pair)
+                    col, row = get_pos(x, y)
+                    color = canvas.colors[row][col]
+
+                    color_pair = curses.color_pair(0)
+                    if color in palette.colors:
+                        color_pair = curses.color_pair(palette.colors[color])
+
+                    stdscr.addstr(row, col, unichr(braille_char_offset+canvas.chars[row][col]).encode('utf-8'), color_pair)
 
             stdscr.refresh()
             if delay:

@@ -12,7 +12,7 @@ DIR_N = 3
 
 class SnakeNode(object):
     def __init__(self,x,y,c,dir, next=None,prev=None):
-        self.x, self.y = get_pos(x,y)
+        self.x, self.y = x,y
         self.color, self.dir = c, dir
         self.prev = prev
         self.next = next
@@ -39,9 +39,11 @@ class SnakeNode(object):
 
 class Snake(object):
     def __init__(self, x, y, c, dir):
-        self.points = 0
+        x,y = get_pos(x,y)
+        self.points, self.max_points = 0,0
         self.color = c
-        self.nodes = [SnakeNode(x-i*CH_WIDTH, y, c, dir) for i in xrange(BASE_SIZE)]
+        self.dir = dir
+        self.nodes = [SnakeNode(x-i, y, c, dir) for i in xrange(BASE_SIZE)]
         self.head = self.nodes[0]
         self.head.is_head = True
         self.tail = self.nodes[-1]
@@ -61,10 +63,15 @@ class Snake(object):
 
         # check move.
         dx, dy = move
-        if arena.is_out_of_bounds((self.head.x + dx)*CH_WIDTH, (self.head.y + dy)*CH_HEIGHT):
+        if arena.is_out_of_bounds(self.head.x + dx, self.head.y + dy):
+            self.kill_reset()
+            return
+        if arena.has_hit_snake(self.head.x, self.head.y, self.head):
+            self.kill_reset()
             return
         if arena.find_and_eat_seed(self.head.x + dx, self.head.y + dy):
             self.points += 1
+            self.max_points = max(self.max_points, self.points)
             self.expand()
 
         # update if necessary.
@@ -87,6 +94,17 @@ class Snake(object):
 
         self.tail.prev = new_tail
         self.tail = new_tail
+
+    def kill_reset(self):
+        x,y = arena.generate_random_pos()
+        self.points = 0
+        self.nodes = [SnakeNode(x-i, y, self.color, self.dir) for i in xrange(BASE_SIZE)]
+        self.head = self.nodes[0]
+        self.head.is_head = True
+        self.tail = self.nodes[-1]
+        for i in xrange(len(self.nodes)):
+            self.nodes[i].prev = self.nodes[i+1] if i+1 < len(self.nodes) else None
+            self.nodes[i].next = self.nodes[i-1] if i-1 >= 0 else None
 
     def frame(self):
         frame = []

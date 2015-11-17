@@ -12,7 +12,7 @@ NUM_SEEDS = 4
 def set_pos(frame,xd,yd):
     return [(x+xd,y+yd,c) for (x,y,c) in frame]
 
-
+# Massive class containing most of the game logic.
 class Arena(object):
     def __init__(self,height,path):
         self.w, self.h, self.frame = image2term(path,height=height)
@@ -28,6 +28,9 @@ class Arena(object):
         random.seed(datetime.now())
         self.seeds = self.generate_seeds(NUM_SEEDS)
         self.reset_seeds_frame()
+
+        # Snakes.
+        self.snakes = None
 
     def reset_seeds_frame(self):
         self.seeds_frame = []
@@ -46,11 +49,37 @@ class Arena(object):
             seeds.append((x,y,COLOR_MAGENTA))
         return seeds
 
+    def generate_random_pos(self):
+        xl, xh, yl, yh = self.x + 15, self.x + self.w - 15, self.y + 15, self.y + self.h - 15
+        return get_pos(random.randint(xl,xh), random.randint(yl,yh))
+
     def set_pos(self,xd,yd):
         self.x, self.y = xd, yd
         self.frame = [(x + self.x, y + self.y, c) for (x,y,c) in self.frame]
 
+    def add_snakes(self, snakes):
+        self.snakes = snakes
+
+    def snakes_frame(self):
+        frame = []
+        for snake in self.snakes:
+            frame.extend(snake.frame())
+        return frame
+
+    def show_scores_frame(self):
+        frame = []
+        uix, uiy = self.x + 60, self.y + self.h + 20
+        for snake in self.snakes:
+            frame.append((uix, uiy, snake.color, "Score: %d" % snake.max_points))
+            uix += 30
+        return frame
+
+
+    # Game logic.
+
     def is_out_of_bounds(self, x, y):
+        x *= CH_WIDTH
+        y *= CH_HEIGHT
         return (x < self.x) or (x > self.x + self.w) or (y < self.y) or (y > self.y + self.h)
 
     def find_and_eat_seed(self, x, y):
@@ -68,6 +97,14 @@ class Arena(object):
         self.seeds.extend(self.generate_seeds(1))
         self.reset_seeds_frame()
         return True
+
+    def has_hit_snake(self,x,y,target):
+        for snake in self.snakes:
+            for node in snake.nodes:
+                if node.x == x and node.y == y and node != target:
+                    return True
+        return False
+        
 
 
 

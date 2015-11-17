@@ -11,28 +11,30 @@ t = 0
 
 def __update__():
     t = 0
-    snake1 = Snake(100, 150, COLOR_YELLOW, DIR_E)
-    snake2 = Snake(200, 150, COLOR_RED, DIR_E)
-    snake3 = Snake(100, 130, COLOR_GREEN, DIR_E)
-    snake4 = Snake(200, 130, COLOR_CYAN, DIR_E)
+    snake1 = Snake(100, 90, COLOR_YELLOW, DIR_E)
+    snake2 = Snake(140, 90, COLOR_RED, DIR_E)
+    snake3 = Snake(100, 78, COLOR_GREEN, DIR_E)
+    snake4 = Snake(140, 78, COLOR_CYAN, DIR_E)
     snakes = [snake1, snake2, snake3, snake4]
+
+    arena.add_snakes(snakes)
 
     while True:
         key = handle_input()
         if key == KEY_UP:
-            snake1.head.dir = DIR_N
+            snake1.head.dir = DIR_N if snake1.head.dir != DIR_S else snake1.head.dir
         elif key == KEY_DOWN:
-            snake1.head.dir = DIR_S
+            snake1.head.dir = DIR_S if snake1.head.dir != DIR_N else snake1.head.dir
         elif key == KEY_LEFT:
-            snake1.head.dir = DIR_W
+            snake1.head.dir = DIR_W if snake1.head.dir != DIR_E else snake1.head.dir
         elif key == KEY_RIGHT:
-            snake1.head.dir = DIR_E
+            snake1.head.dir = DIR_E if snake1.head.dir != DIR_W else snake1.head.dir
 
         frame = []
         frame.extend(arena.frame)
         frame.extend(arena.seeds_frame)
-        for snake in snakes:
-            frame.extend(snake.frame())
+        frame.extend(arena.snakes_frame())
+        frame.extend(arena.show_scores_frame())
 
         yield frame
         t += 1
