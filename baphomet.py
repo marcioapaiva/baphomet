@@ -170,7 +170,7 @@ def main(argv):
         server_port = int(argv[1])
         init_client_socket()
         print("Waiting for game start...")
-        my_number = get_line(m_socket)
+        my_number = get_line(m_socket).next()
 
     p.add_color(COLOR_CYAN)
     animate(c, p, __update__, 1./15)
