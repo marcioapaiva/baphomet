@@ -1,5 +1,3 @@
-from drawille.graphics_utils import get_terminal_size_in_pixels, normalize, get_pos
-
 __author__ = 'ericmuxagata'
 
 BASE_SIZE = 5
@@ -10,11 +8,6 @@ DIR_E = 2
 DIR_N = 3
 CH_HEIGHT = 4.0
 CH_WIDTH  = 2.0
-
-EDGE_X = 12.0
-EDGE_Y = 7.0
-
-tw,th = get_terminal_size_in_pixels()
 
 def frange(x, y, jump):
   while x < y:
