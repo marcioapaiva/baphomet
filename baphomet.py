@@ -87,7 +87,7 @@ def __update__():
         t -= time.time() - start
         for snake in snakes:
             snake.__update__()
-            if k % 10 == 0 and snake is not snake1:
+            if k % 10 == 0 and snake is not snake1 and snake is not snake2:
                 snake.head.dir += 1
                 if snake.head.dir == 4:
                     snake.head.dir = 0
