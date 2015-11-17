@@ -80,7 +80,7 @@ def __update__():
             send_dir(this_direction)
             dirs = receive_dirs(m_socket)
             for player in dirs.keys():
-                snakes[player].move(dirs[player])
+                snakes[int(player)].move(dirs[int(player)])
 
         frame = []
         frame.extend(arena.frame)
