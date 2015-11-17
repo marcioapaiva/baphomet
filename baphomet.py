@@ -75,6 +75,7 @@ def __update__():
             for player in sockets_dict.keys():
                 direction = receive_dir(sockets_dict[player])
                 snakes[player].move(direction)
+            send_dirs_all_players()
         else:
             send_dir(this_direction)
             dirs = receive_dirs(m_socket)
@@ -122,7 +123,7 @@ def send_dir(direction):
     m_socket.sendall(dir_dict_inv[direction] + "\n")
 
 
-def send_dirs_all_players(direction):
+def send_dirs_all_players():
     for player in sockets_dict.keys():
         sckt = sockets_dict[player]
         send_dirs(sckt)
@@ -132,6 +133,11 @@ def send_dirs(sckt):
     dirs = {}
     for player in range(len(snakes)):
         dirs[player] = snakes[player].head.dir
+
+    time.sleep(4)
+    arq = open("/home/moco/bizu", "w")
+    arq.write(json.dumps(dirs) + "\n")
+    arq.close()
     sckt.send(json.dumps(dirs) + "\n")
 
 
