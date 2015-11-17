@@ -39,6 +39,7 @@ class SnakeNode(object):
 
 class Snake(object):
     def __init__(self, x, y, c, dir):
+        self.points = 0
         self.color = c
         self.nodes = [SnakeNode(x-i*CH_WIDTH, y, c, dir) for i in xrange(BASE_SIZE)]
         self.head = self.nodes[0]
@@ -63,12 +64,29 @@ class Snake(object):
         if arena.is_out_of_bounds((self.head.x + dx)*CH_WIDTH, (self.head.y + dy)*CH_HEIGHT):
             return
         if arena.find_and_eat_seed(self.head.x + dx, self.head.y + dy):
-            # add to tail.
-            pass
+            self.points += 1
+            self.expand()
 
         # update if necessary.
         self.tail.follow_next()
         self.head.add_pos(*move)
+
+    def expand(self):
+        if self.tail.dir == DIR_S:
+            ds = (0, -1)
+        elif self.tail.dir == DIR_N:
+            ds = (0, 1)
+        elif self.tail.dir == DIR_W:
+            ds = (1, 0)
+        else:
+            ds = (-1, 0)
+        new_tail = SnakeNode(self.tail.x + ds[0], self.tail.y + ds[1], self.color, self.tail.dir)
+        new_tail.next = self.tail
+        new_tail.prev = None
+        self.nodes.append(new_tail)
+
+        self.tail.prev = new_tail
+        self.tail = new_tail
 
     def frame(self):
         frame = []
