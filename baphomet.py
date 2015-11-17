@@ -8,6 +8,7 @@ from snake import DIR_N,DIR_S,DIR_E,DIR_W,Snake
 from arena import *
 import socket
 import sys
+import json
 
 # Global state
 # 'Cause I don't know python and it's too fucking late
@@ -76,6 +77,9 @@ def __update__():
                 snakes[player].move(direction)
         else:
             send_dir(this_direction)
+            dirs = receive_dirs(m_socket)
+            for player in dirs:
+                snakes[player].move(dirs[player])
 
         frame = []
         frame.extend(arena.frame)
@@ -103,12 +107,32 @@ def receive_dir(sckt):
     data = get_line(sckt).next()
     string = data.rstrip("\n")
 
-    # print("Received " + string)
     return dir_dict[string]
+
+
+def receive_dirs(sckt):
+    data = get_line(sckt).next()
+    data = data.rstrip("\n")
+    dirs = json.loads(data)
+
+    return dirs
 
 
 def send_dir(direction):
     m_socket.sendall(dir_dict_inv[direction] + "\n")
+
+
+def send_dirs_all_players(direction):
+    for player in sockets_dict.keys():
+        sckt = sockets_dict[player]
+        send_dirs(sckt)
+
+
+def send_dirs(sckt):
+    dirs = {}
+    for player in range(len(snakes)):
+        dirs[player] = snakes[player].head.dir
+    sckt.send(json.dumps(dirs) + "\n")
 
 
 def init_client_socket():
@@ -140,9 +164,7 @@ def main(argv):
         server_port = int(argv[1])
         init_client_socket()
         print("Waiting for game start...")
-        rcvd = get_line(m_socket)
-        print ("rcvd = " + rcvd.next())
-        time.sleep(3)
+        my_number = get_line(m_socket)
 
     p.add_color(COLOR_CYAN)
     animate(c, p, __update__, 1./15)
