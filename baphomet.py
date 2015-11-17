@@ -100,7 +100,7 @@ def init_server_socket():
 
 
 def receive_dir(sckt):
-    data = get_line(sckt)
+    data = get_line(sckt).next()
     string = data.rstrip("\n")
 
     print("Received " + string)
