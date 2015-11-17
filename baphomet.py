@@ -225,7 +225,7 @@ def get_line(sckt):
 def send_start_game():
     for player in sockets_dict.keys():
         sockets_dict[player].send(
-            json.dumps({"total": len(sockets_dict.keys()), "my_number": player}) + "\n")
+            json.dumps({"total": len(sockets_dict.keys())+1, "my_number": player}) + "\n")
 
 if __name__ == '__main__':
     main(sys.argv[1:])
