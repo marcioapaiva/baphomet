@@ -1,4 +1,5 @@
 from drawille.graphics_utils import get_pos
+import arena
 
 __author__ = 'ericmuxagata'
 
@@ -10,6 +11,8 @@ DIR_E = 2
 DIR_N = 3
 CH_HEIGHT = 4.0
 CH_WIDTH  = 2.0
+
+a = arena.arena
 
 def frange(x, y, jump):
   while x < y:
@@ -26,6 +29,8 @@ class SnakeNode(object):
         self.dir = dir
 
     def add_pos(self,x,y):
+        if a.is_out_of_bounds((self.x + x)*CH_WIDTH, (self.y + y)*CH_HEIGHT):
+            return
         self.x += x
         self.y += y
 
