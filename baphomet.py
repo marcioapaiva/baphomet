@@ -162,8 +162,10 @@ def init_client_socket():
 def main(argv):
     global is_server, server_ip, server_port, snakes, total, my_number
 
-    if len(argv) == 0:
+    if len(argv) <= 1:
         is_server = True
+        if len(argv) == 1:
+            server_port = int(argv[0])
     else:
         is_server = False
 
