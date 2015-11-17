@@ -5,7 +5,9 @@ from drawille.graphics_utils import KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT
 from drawille.drawille import Canvas, Palette, animate, handle_input
 from image2term import image2term
 from snake import DIR_N,DIR_S,DIR_E,DIR_W,Snake
+from arena import Arena
 
+arena = None
 c = Canvas()
 p = Palette()
 t = 0
@@ -16,15 +18,17 @@ def set_pos(frame,xd,yd):
 
 
 def load_arena():
-    arena = []
-    baphomet_head = image2term('img/baphomet_head.gif', ratio=0.5, invert=True)
+    global arena
+    tw, th = get_terminal_size_in_pixels()
 
-    tw,th = get_terminal_size_in_pixels()
+    if not arena:
+        arena = Arena(150,'img/arena.png')
+        arena.set_pos(tw/2 - arena.w/2,th/2 - arena.h/2)
 
-    arena.extend(set_pos(baphomet_head,tw/2 - 105,th/2 - 105))
-    arena.extend(image2term('img/arena.png',ratio=1.0))
+        bapho_head = image2term('img/baphomet_head.gif', height=0.8*arena.h, invert=True)
+        arena.frame.extend(set_pos(bapho_head[2],arena.x + arena.w/2 - bapho_head[0]/2,arena.y + arena.h/2 - bapho_head[1]/2))
 
-    return arena
+    return arena.frame
 
 def __update__():
     t = 0
@@ -63,6 +67,6 @@ def __update__():
 
 if __name__ == '__main__':
     p.add_color(COLOR_CYAN)
-    animate(c,p, __update__, 1./30)
+    animate(c,p, __update__, 1./60)
 
 

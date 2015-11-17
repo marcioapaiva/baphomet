@@ -19,7 +19,7 @@ img_cache = {}
 
 
 # Translates the image to its black/white representation and gives back a drawable frame.
-def image2term(image, threshold=128, ratio=None, invert=False):
+def image2term(image, threshold=128, height=None, invert=False):
     if image not in img_cache:
         if image.startswith('http://') or image.startswith('https://'):
             i = Image.open(StringIO(urllib2.urlopen(image).read())).convert('L')
@@ -27,7 +27,9 @@ def image2term(image, threshold=128, ratio=None, invert=False):
             i = Image.open(open(image)).convert('L')
 
         w, h = i.size
-        if ratio:
+        if height:
+            ratio = height/float(h)
+
             w = int(w * ratio)
             h = int(h * ratio)
             i = i.resize((w, h), Image.ANTIALIAS)
@@ -69,7 +71,7 @@ def image2term(image, threshold=128, ratio=None, invert=False):
         if x >= w:
             y += 1
             x = 0
-    return frame
+    return (w,h,frame)
 
 
 def argparser():
