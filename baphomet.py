@@ -8,7 +8,7 @@ from arena import *
 import time
 
 
-GAME_TIME = 10.0
+GAME_TIME = 30.0
 FRAME_PERIOD = 1./30
 
 c = Canvas()
