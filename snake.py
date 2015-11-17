@@ -1,3 +1,5 @@
+from drawille.graphics_utils import get_pos
+
 __author__ = 'ericmuxagata'
 
 BASE_SIZE = 5
