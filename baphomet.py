@@ -158,27 +158,30 @@ def init_client_socket():
 
 
 def main(argv):
-    global is_server, server_ip, server_port, snakes
+    global is_server, server_ip, server_port, snakes, total
 
     if len(argv) == 0:
         is_server = True
     else:
         is_server = False
 
-    snakes = snakes[0:p_number]
+    snakes = snakes[0:total]
     if is_server:
         init_server_socket()
-        p_number = 1
-        while p_number <= 3 and prompt_wait_for_player():
-            wait_for_player(p_number)
-            p_number += 1
+        total = 1
+        while total <= 3 and prompt_wait_for_player():
+            wait_for_player(total)
+            total += 1
         send_start_game()
     else:
         server_ip = argv[0]
         server_port = int(argv[1])
         init_client_socket()
         print("Waiting for game start...")
-        my_number = get_line(m_socket).next()
+        my_number_total = get_line(m_socket).next()
+        my_number_total = json.loads(my_number_total)
+        my_number = my_number_total["my_number"]
+        total = my_number_total["total"]
 
     p.add_color(COLOR_CYAN)
     p.add_color(COLOR_MAGENTA)
@@ -218,7 +221,8 @@ def get_line(sckt):
 
 def send_start_game():
     for player in sockets_dict.keys():
-        sockets_dict[player].send(str(player) + "\n")
+        sockets_dict[player].send(
+            json.dumps({"total": len(sockets_dict.keys()), "my_number": player}) + "\n")
 
 if __name__ == '__main__':
     main(sys.argv[1:])
