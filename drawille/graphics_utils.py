@@ -4,6 +4,9 @@ import curses
 __author__ = 'ericmuxagata'
 
 
+CH_HEIGHT = 4.0
+CH_WIDTH  = 2.0
+
 COLOR_BLACK     = curses.COLOR_BLACK
 COLOR_RED       = curses.COLOR_RED
 COLOR_GREEN     = curses.COLOR_GREEN
@@ -25,6 +28,10 @@ KEY_DOWN    = curses.KEY_DOWN
 KEY_LEFT    = curses.KEY_LEFT
 KEY_RIGHT   = curses.KEY_RIGHT
 
+def frange(x, y, jump):
+  while x < y:
+    yield x
+    x += jump
 
 # http://stackoverflow.com/questions/566746/how-to-get-console-window-width-in-python
 def getTerminalSize():

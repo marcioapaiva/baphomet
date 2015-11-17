@@ -51,6 +51,7 @@ def __update__():
 
         frame = []
         frame.extend(arena.frame)
+        frame.extend(arena.seeds_frame)
         for snake in snakes:
             frame.extend(snake.frame())
 
