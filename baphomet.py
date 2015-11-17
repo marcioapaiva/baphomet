@@ -167,7 +167,6 @@ def main(argv):
     else:
         is_server = False
 
-    snakes = snakes[0:total]
     if is_server:
         init_server_socket()
         total = 1
@@ -184,6 +183,8 @@ def main(argv):
         my_number_total = json.loads(my_number_total)
         my_number = my_number_total["my_number"]
         total = my_number_total["total"]
+
+    snakes = snakes[0:total]
 
     p.add_color(COLOR_CYAN)
     p.add_color(COLOR_MAGENTA)
