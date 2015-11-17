@@ -1,6 +1,6 @@
 import random
 from datetime import datetime
-from drawille.graphics_utils import get_terminal_size_in_pixels, COLOR_MAGENTA, CH_HEIGHT, CH_WIDTH, frange, get_pos
+from drawille.graphics_utils import get_terminal_size_in_pixels, COLOR_MAGENTA, CH_HEIGHT, CH_WIDTH, frange, get_pos, COLOR_WHITE
 from image2term import image2term
 
 
@@ -60,6 +60,9 @@ class Arena(object):
         self.x, self.y = xd, yd
         self.frame = [(x + self.x, y + self.y, c) for (x,y,c) in self.frame]
 
+    def set_color(self,color):
+        self.frame = [(x, y, color) for (x,y,c) in self.frame]
+
     def add_snakes(self, snakes):
         self.snakes = snakes
 
@@ -76,6 +79,24 @@ class Arena(object):
             frame.append((uix, uiy, snake.color, "Score: %d" % snake.max_points))
             uix += 30
         return frame
+
+    def show_timer_frame(self, t):
+        frame = []
+        t = int(t)
+        uix, uiy = self.x + 90, self.y + self.h + 30
+        frame.append((uix, uiy, COLOR_WHITE, "TIME REMAINING: %02d:%02d" % (t/60, t % 60)))
+        return frame
+
+    def show_victory_frame(self):
+        frame = []
+        winner = max(self.snakes, key=lambda s: s.max_points)
+        color = winner.color if winner else COLOR_WHITE
+        self.set_color(color)
+
+        uix, uiy = self.x + 70, self.y + self.h + 30
+        frame.append((uix, uiy, color, "LASCIATE OGNI SPERANZA, VOI CH'ENTRATE. VICTORY."))
+        return frame
+
 
 
     # Game logic.
@@ -108,8 +129,5 @@ class Arena(object):
                     return True
         return False
         
-
-
-
 
 arena = Arena(130,'img/arena.png')
