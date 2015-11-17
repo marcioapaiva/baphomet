@@ -75,3 +75,7 @@ class Snake(object):
             frame.extend(node.frame())
         return frame
 
+    def move(self, direction):
+        if direction is not None:
+            self.head.dir = direction
+

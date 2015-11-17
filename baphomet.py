@@ -6,10 +6,16 @@ from drawille.drawille import Canvas, Palette, animate, handle_input
 from image2term import image2term
 from snake import DIR_N,DIR_S,DIR_E,DIR_W,Snake
 from arena import *
+import socket
+import sys
 
 c = Canvas()
 p = Palette()
 t = 0
+is_server = False
+server_ip = None
+server_port = None
+m_socket = None
 
 
 def set_pos(frame, xd, yd):
@@ -40,14 +46,23 @@ def __update__():
 
     while True:
         key = handle_input()
+        direction = None
         if key == KEY_UP:
-            snake1.head.dir = DIR_N
+            direction = DIR_N
         elif key == KEY_DOWN:
-            snake1.head.dir = DIR_S
+            direction = DIR_S
         elif key == KEY_LEFT:
-            snake1.head.dir = DIR_W
+            direction = DIR_W
         elif key == KEY_RIGHT:
-            snake1.head.dir = DIR_E
+            direction = DIR_E
+
+        snake1.move(direction)
+
+        if is_server:
+            dir2 = receive_dir()
+            snake2.move(dir2)
+        else:
+            send_dir(direction)
 
         frame = []
         frame.extend(arena.frame)
@@ -64,8 +79,67 @@ def __update__():
                     snake.head.dir = 0
 
 
-if __name__ == '__main__':
+conn = None
+addr = None
+
+
+def init_server_socket():
+    global m_socket, conn, addr
+
+    m_socket = socket.socket()
+    host = ''
+    port = 8080
+    m_socket.bind((host, port))
+
+    m_socket.listen(5)
+    print("Waiting for connection...")
+    conn, addr = m_socket.accept()
+
+
+dir_dict = {
+    "DIR_N": DIR_N,
+    "DIR_S": DIR_S,
+    "DIR_W": DIR_W,
+    "DIR_E": DIR_E,
+    "None": None
+}
+dir_dict_inv = {v: k for k, v in dir_dict.items()}
+
+
+def receive_dir():
+    data = conn.recv(1024)
+    string = data.rstrip("\n")
+
+    print("Received " + string)
+    return dir_dict[string]
+
+
+def send_dir(direction):
+    m_socket.sendall(dir_dict_inv[direction])
+
+
+def init_client_socket():
+    global m_socket
+    m_socket = socket.socket()
+    m_socket.connect((server_ip, server_port))
+
+
+def main(argv):
+    global is_server, server_ip, server_port
+
+    print(argv)
+
+    if len(argv) == 0:
+        is_server = True
+        init_server_socket()
+    else:
+        is_server = False
+        server_ip = argv[1]
+        server_port = int(argv[2])
+        init_client_socket()
+
     p.add_color(COLOR_CYAN)
-    animate(c, p, __update__, 1./60)
+    animate(c, p, __update__, 1./15)
 
-
+if __name__ == '__main__':
+    main(sys.argv[2:])
