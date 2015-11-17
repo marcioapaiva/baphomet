@@ -31,6 +31,7 @@ def __update__():
             snake1.head.dir = DIR_E if snake1.head.dir != DIR_W else snake1.head.dir
 
         frame = []
+
         frame.extend(arena.frame)
         frame.extend(arena.seeds_frame)
         frame.extend(arena.snakes_frame())
